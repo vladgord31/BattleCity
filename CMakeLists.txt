@@ -17,7 +17,16 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/glfw)
 
 # Include GLFW headers
-target_include_directories(${PROJECT_NAME} PRIVATE external/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC external/glfw/include)
 
 # Link GLFW to the project
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+# Add GLAD as a subdirectory
+add_subdirectory(external/glad)
+
+# Include GLAD headers
+target_include_directories(${PROJECT_NAME} PUBLIC external/glad/include)
+
+# Link GLAD to the project
+target_link_libraries(${PROJECT_NAME} PRIVATE glad)
