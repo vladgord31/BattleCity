@@ -1,49 +1,72 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <iostream>
+
+void framebuffer_size_callback(GLFWwindow *pWindow, int width, int height);
+void processInput(GLFWwindow *pWindow);
+
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 
 int main(void)
 {
-    GLFWwindow *window;
-
-    /* Initialize the library */
     if (!glfwInit())
-        return -1;
-
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
     {
+        std::cout << "GLFW init failed." << std::endl;
+        return -1;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GLFWwindow *pWindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Battle City", NULL, NULL);
+    if (!pWindow)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
 
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(pWindow);
+
+    glfwMakeContextCurrent(pWindow);
+    glfwSetWindowSizeCallback(pWindow, framebuffer_size_callback);
 
     if (!gladLoadGL())
     {
-        std::cout << "Can't load GLAD" << std::endl;
+        std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    std::cout << "OpenGl" << GLVersion.major << "." << GLVersion.minor << std::endl;
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    glClearColor(0, 1, 0, 1);
-
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(pWindow))
     {
-        /* Render here */
+        processInput(pWindow);
+
+        glClearColor(0, 1, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(pWindow);
 
-        /* Poll for and process events */
         glfwPollEvents();
     }
 
     glfwTerminate();
     return 0;
+}
+
+
+void processInput(GLFWwindow *pWindow)
+{
+    if (glfwGetKey(pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(pWindow, GL_TRUE);
+}
+
+void framebuffer_size_callback(GLFWwindow *pWindow, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
