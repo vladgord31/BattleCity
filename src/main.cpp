@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 #include "Renderer/ShaderProgram.h"
@@ -9,13 +12,12 @@
 void framebuffer_size_callback(GLFWwindow *pWindow, int width, int height);
 void processInput(GLFWwindow *pWindow);
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+glm::ivec2 glWindowSize(800, 600);
 
 GLfloat vertices[] = {
-     0.0f,  0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
+     0.0f,  50.f, 0.0f,
+     50.f, -50.f, 0.0f,
+    -50.f, -50.f, 0.0f,
 };
 
 GLfloat colors[] = {
@@ -42,7 +44,7 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *pWindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Battle City", nullptr, nullptr);
+    GLFWwindow *pWindow = glfwCreateWindow(glWindowSize.x, glWindowSize.y, "Battle City", nullptr, nullptr);
     if (!pWindow)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -110,6 +112,13 @@ int main(int argc, char** argv)
         pDefaultShaderProgram->use();
         pDefaultShaderProgram->setInt("tex", 0);
 
+        glm::mat4 modelMatrix = glm::mat4(1.f);
+        modelMatrix = glm::translate(modelMatrix, glm::vec3(100.f, 200.f, 0.f));
+
+        glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(glWindowSize.x), 0.f, static_cast<float>(glWindowSize.y), -100.f, 100.f);
+
+        pDefaultShaderProgram->setMatrix4("projectionMat", projectionMatrix);
+
         while (!glfwWindowShouldClose(pWindow))
         {
             processInput(pWindow);
@@ -120,6 +129,7 @@ int main(int argc, char** argv)
             glBindVertexArray(VAO);
             tex->bind();
 
+            pDefaultShaderProgram->setMatrix4("modelMat", modelMatrix);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             glfwSwapBuffers(pWindow);
