@@ -8,6 +8,7 @@
 #include "Renderer/ShaderProgram.h"
 #include "Resources/ResourceManager.h"
 #include "Renderer/Texture2D.h"
+#include "Renderer/Sprite.h"
 
 void framebuffer_size_callback(GLFWwindow *pWindow, int width, int height);
 void processInput(GLFWwindow *pWindow);
@@ -76,7 +77,17 @@ int main(int argc, char** argv)
             return -1;
         }
 
+        auto pSpriteShaderProgram = resourceManager.loadShaders("SpriteShader", "res/shaders/vSprite.txt", "res/shaders/fSprite.txt");
+        if (!pDefaultShaderProgram)
+        {
+            std::cerr << "Can't create shader program: " << "SpriteShader" << std::endl;
+            return -1;
+        }
+
         auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/map_16x16.png");
+
+        auto pSpriteProgram = resourceManager.loadSprite("NewSprite", "DefaultTexture", "SpriteShader", 50, 100);
+        pSpriteProgram->setPosition(glm::vec2(300, 100));
 
         GLuint verticesVBO = 0;
         glGenBuffers(1, &verticesVBO);
@@ -119,6 +130,10 @@ int main(int argc, char** argv)
 
         pDefaultShaderProgram->setMatrix4("projectionMat", projectionMatrix);
 
+        pSpriteShaderProgram->use();
+        pSpriteShaderProgram->setInt("tex", 0);
+        pSpriteShaderProgram->setMatrix4("projectionMat", projectionMatrix);
+
         while (!glfwWindowShouldClose(pWindow))
         {
             processInput(pWindow);
@@ -131,6 +146,8 @@ int main(int argc, char** argv)
 
             pDefaultShaderProgram->setMatrix4("modelMat", modelMatrix);
             glDrawArrays(GL_TRIANGLES, 0, 3);
+
+            pSpriteProgram->render();
 
             glfwSwapBuffers(pWindow);
 
